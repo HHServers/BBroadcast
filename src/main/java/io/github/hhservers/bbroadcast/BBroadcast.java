@@ -1,9 +1,10 @@
-package io.github.hhservers.bstarter;
+package io.github.hhservers.bbroadcast;
 
 import com.google.inject.Inject;
-import io.github.hhservers.bstarter.commands.Base;
-import io.github.hhservers.bstarter.config.ConfigHandler;
-import io.github.hhservers.bstarter.config.MainPluginConfig;
+import io.github.hhservers.bbroadcast.commands.Base;
+import io.github.hhservers.bbroadcast.config.ConfigHandler;
+import io.github.hhservers.bbroadcast.config.MainPluginConfig;
+import io.github.hhservers.bbroadcast.util.BroadcastUtil;
 import lombok.Getter;
 import ninja.leaping.configurate.objectmapping.GuiceObjectMapperFactory;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -16,22 +17,25 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.scheduler.Task;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Plugin(
-        id = "bstarter",
-        name = "BStarter",
-        description = "Starter plugin",
+        id = "bbroadcast",
+        name = "BBroadcast",
+        description = "Broadcast plugin",
         authors = {
                 "blvxr"
         }
 )
-public class BStarter {
+public class BBroadcast {
 
     @Getter
-    private static BStarter instance;
+    private static BBroadcast instance;
     @Getter
     @Inject
     private Logger logger;
@@ -40,10 +44,11 @@ public class BStarter {
     private final GuiceObjectMapperFactory factory;
     private final File configDir;
     private static ConfigHandler configHandler;
+    public static List<Task> taskList = new ArrayList<>();
 
 
     @Inject
-    public BStarter(GuiceObjectMapperFactory factory, @ConfigDir(sharedRoot = false) File configDir) {
+    public BBroadcast(GuiceObjectMapperFactory factory, @ConfigDir(sharedRoot = false) File configDir) {
         this.factory=factory;
         this.configDir=configDir;
         instance=this;
@@ -57,11 +62,12 @@ public class BStarter {
     @Listener
     public void onGameInit(GameInitializationEvent e){
         instance = this;
-        Sponge.getCommandManager().register(instance, Base.build(), "base");
+        Sponge.getCommandManager().register(instance, Base.build(), "bbroadcast", "bb");
     }
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
+        //new BroadcastUtil().buildBroadcast();
     }
 
     @Listener
@@ -72,6 +78,12 @@ public class BStarter {
     public void reloadConfig() throws IOException, ObjectMappingException {
         configHandler=new ConfigHandler(this);
         if (configHandler.loadConfig()) {mainPluginConfig = configHandler.getPluginConf();}
+        if(!(taskList==null)) {
+            for (int i = 0; i < taskList.size(); i++) {
+                taskList.get(i).cancel();
+            }
+            new BroadcastUtil().buildBroadcast();
+        }
     }
 
     public GuiceObjectMapperFactory getFactory() {

@@ -1,7 +1,7 @@
-package io.github.hhservers.bstarter.config;
+package io.github.hhservers.bbroadcast.config;
 
 import com.google.common.reflect.TypeToken;
-import io.github.hhservers.bstarter.BStarter;
+import io.github.hhservers.bbroadcast.BBroadcast;
 import lombok.Data;
 import lombok.Getter;
 import ninja.leaping.configurate.ConfigurationOptions;
@@ -16,13 +16,13 @@ import java.io.IOException;
 @Data
 public class ConfigHandler {
 
-    private  BStarter plugin = BStarter.getInstance();
-    private File confFile =new File(plugin.getConfigDir(), "BStarter.conf");
+    private BBroadcast plugin = BBroadcast.getInstance();
+    private File confFile =new File(plugin.getConfigDir(), "BBroadcast.conf");
     private ConfigurationLoader<CommentedConfigurationNode> configLoad;
     @Getter
     private MainPluginConfig pluginConf;
 
-    public ConfigHandler(BStarter plugin) {
+    public ConfigHandler(BBroadcast plugin) {
         this.plugin = plugin;
         if (!plugin.getConfigDir().exists()) {
             plugin.getConfigDir().mkdirs();
@@ -30,7 +30,6 @@ public class ConfigHandler {
     }
 
     public boolean loadConfig() throws IOException, ObjectMappingException {
-        //File file = new File(plugin.getConfigDir(), "BStarter.conf");
         if (!confFile.exists()) {
             confFile.createNewFile();
         }
