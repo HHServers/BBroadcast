@@ -77,12 +77,13 @@ public class BBroadcast {
 
     public void reloadConfig() throws IOException, ObjectMappingException {
         configHandler=new ConfigHandler(this);
+        BroadcastUtil util = new BroadcastUtil();
         if (configHandler.loadConfig()) {mainPluginConfig = configHandler.getPluginConf();}
         if(!(taskList==null)) {
             for (int i = 0; i < taskList.size(); i++) {
                 taskList.get(i).cancel();
             }
-            new BroadcastUtil().buildBroadcast();
+            util.buildBroadcast();util.buildOtherCasts();
         }
     }
 

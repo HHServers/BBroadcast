@@ -17,7 +17,7 @@ public class Child implements CommandExecutor {
 
     public static CommandSpec build(){
        return CommandSpec.builder()
-                .permission("butils.user.base.child")
+                .permission("bbroadcast.user.base.child")
                 .description(Text.of("Child command of Base"))
                 .executor(new Child())
                 .build();

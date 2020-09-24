@@ -20,8 +20,9 @@ public class Base implements CommandExecutor {
     public static CommandSpec build(){
        return CommandSpec.builder()
                 .child(Child.build(), "child")
+                .child(Reload.build(), "reload")
                 //.arguments(GenericArguments.string(Text.of("StringArg")), GenericArguments.integer(Text.of("IntArg")))
-                .permission("bbroadcast.user.base")
+                .permission("bbroadcast.admin.base")
                 .description(Text.of("Base command"))
                 .executor(new Base())
                 .build();
