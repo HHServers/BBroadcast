@@ -1,6 +1,9 @@
 package io.github.hhservers.bbroadcast.util;
 
 import io.github.hhservers.bbroadcast.BBroadcast;
+import io.github.hhservers.bbroadcast.config.ConfigHandler;
+import io.github.hhservers.bbroadcast.config.MainPluginConfig;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -8,6 +11,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -149,6 +153,45 @@ public class BroadcastUtil {
         }
     }
 
-    public Text textSerializer(String s){return TextSerializers.FORMATTING_CODE.deserialize(BBroadcast.getMainPluginConfig().getPrefix() + s);}
+    public void addNewCast(String message, String world, Boolean title, Boolean random) throws IOException, ObjectMappingException {
+        MainPluginConfig conf = BBroadcast.getMainPluginConfig();
+        if(random){
+            RandomBroadcastObject rCast = new RandomBroadcastObject();
+            rCast.setMessage(message);
+            rCast.setWorld(world);
+            rCast.setTitle(title);
+            conf.getRandomList().add(rCast);
+        } else {
+            BroadcastObject cast = new BroadcastObject();
+            cast.setTitle(title);
+            cast.setWorld(world);
+            cast.setMessage(message);
+            conf.getBroadcastList().add(cast);
+        }
+        BBroadcast.getConfigHandler().saveConfig(conf);
+        BBroadcast.getInstance().reloadConfig();
+    }
+
+    public void addNewCast(String message, String world, Boolean title, Boolean random, Integer interval) throws IOException, ObjectMappingException {
+        MainPluginConfig conf = BBroadcast.getMainPluginConfig();
+        if(random){
+            RandomBroadcastObject rCast = new RandomBroadcastObject();
+            rCast.setMessage(message);
+            rCast.setWorld(world);
+            rCast.setTitle(title);
+            conf.getRandomList().add(rCast);
+        } else {
+            BroadcastObject cast = new BroadcastObject();
+            cast.setTitle(title);
+            cast.setWorld(world);
+            cast.setMessage(message);
+            cast.setInterval(interval);
+            conf.getBroadcastList().add(cast);
+        }
+        BBroadcast.getConfigHandler().saveConfig(conf);
+        BBroadcast.getInstance().reloadConfig();
+    }
+
+    public Text textSerializer(String s){return TextSerializers.FORMATTING_CODE.deserialize(BBroadcast.getMainPluginConfig().getPrefix() + " " + s);}
 
 }

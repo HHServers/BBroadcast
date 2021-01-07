@@ -41,9 +41,10 @@ public class BBroadcast {
     private Logger logger;
     @Getter
     private static MainPluginConfig mainPluginConfig;
+    @Getter
+    private static ConfigHandler configHandler;
     private final GuiceObjectMapperFactory factory;
     private final File configDir;
-    private static ConfigHandler configHandler;
     public static List<Task> taskList = new ArrayList<>();
 
 
