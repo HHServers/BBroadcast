@@ -6,12 +6,15 @@ import io.github.hhservers.bbroadcast.config.MainPluginConfig;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -172,6 +175,20 @@ public class BroadcastUtil {
         BBroadcast.getInstance().reloadConfig();
     }
 
+    public void removeCast(int index) throws IOException, ObjectMappingException {
+        MainPluginConfig conf = BBroadcast.getMainPluginConfig();
+        conf.getBroadcastList().remove(index);
+        BBroadcast.getConfigHandler().saveConfig(conf);
+        BBroadcast.getInstance().reloadConfig();
+    }
+
+    public void removeRandom(int index) throws IOException, ObjectMappingException {
+        MainPluginConfig conf = BBroadcast.getMainPluginConfig();
+        conf.getRandomList().remove(index);
+        BBroadcast.getConfigHandler().saveConfig(conf);
+        BBroadcast.getInstance().reloadConfig();
+    }
+
     public void addNewCast(String message, String world, Boolean title, Boolean random, Integer interval) throws IOException, ObjectMappingException {
         MainPluginConfig conf = BBroadcast.getMainPluginConfig();
         if(random){
@@ -192,6 +209,69 @@ public class BroadcastUtil {
         BBroadcast.getInstance().reloadConfig();
     }
 
+    public PaginationList broadcastList(){
+        List<Text> textList = new ArrayList<>();
+        int i = -1;
+        for(BroadcastObject cast : BBroadcast.getMainPluginConfig().getBroadcastList()){
+            i++;
+            int finalI = i;
+            textList.add(noPrefixSerializer(
+                    "&l&8-&r&bMessage: &6\"&r" + cast.getMessage() + "&6\"&r\n"
+                    + "&l&8-&r&bWorld: &6" + cast.getWorld() + "\n"
+                    + "&l&8-&r&bTitle?: &6" + cast.getTitle() + "\n"
+                    + "&l&8-&r&bINDEX: &6" + i + "\n"
+            ).toBuilder().append(Text.builder().append(noPrefixSerializer("&l&c[REMOVE]"))
+                    .onClick(TextActions.executeCallback(commandSource -> {
+                        try {
+                            removeCast(finalI);
+                            commandSource.sendMessage(textSerializer("&bBroadcast removed."));
+                            Sponge.getCommandManager().process(commandSource, "bb list timed");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ObjectMappingException e) {
+                            e.printStackTrace();
+                        }
+                    }))
+                    .build()).build());
+        }
+        return PaginationList.builder()
+                .title(noPrefixSerializer("&l&8[&r&aB&dBroadcast&r&l&8]"))
+                .contents(textList)
+                .build();
+    }
+
+    public PaginationList randomList(){
+        List<Text> textList = new ArrayList<>();
+        int i = -1;
+        for(RandomBroadcastObject cast : BBroadcast.getMainPluginConfig().getRandomList()){
+            i++;
+            int finalI = i;
+            textList.add(noPrefixSerializer(
+                    "&l&8-&r&bMessage: &6\"&r" + cast.getMessage() + "&6\"&r\n"
+                            + "&l&8-&r&bWorld: &6" + cast.getWorld() + "\n"
+                            + "&l&8-&r&bTitle?: &6" + cast.getTitle() + "\n"
+                            + "&l&8-&r&bINDEX: &6" + i + "\n"
+            ).toBuilder().append(Text.builder().append(noPrefixSerializer("&l&c[REMOVE]"))
+                    .onClick(TextActions.executeCallback(commandSource -> {
+                        try {
+                            removeRandom(finalI);
+                            commandSource.sendMessage(textSerializer("&bBroadcast removed."));
+                            Sponge.getCommandManager().process(commandSource, "bb list random");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ObjectMappingException e) {
+                            e.printStackTrace();
+                        }
+                    }))
+                    .build()).build());
+        }
+        return PaginationList.builder()
+                .title(noPrefixSerializer("&l&8[&r&aB&dBroadcast&r&l&8]"))
+                .contents(textList)
+                .build();
+    }
+
     public Text textSerializer(String s){return TextSerializers.FORMATTING_CODE.deserialize(BBroadcast.getMainPluginConfig().getPrefix() + " " + s);}
+    public Text noPrefixSerializer(String s){return TextSerializers.FORMATTING_CODE.deserialize(s);}
 
 }
